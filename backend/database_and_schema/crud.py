@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
 from fastapi import HTTPException
-from app import models, schemas
-from app.utils import hash_password
+from database_and_schema import models, schemas
+from database_and_schema.utils import hash_password
 from sqlalchemy import text
 
 # -------------------------------

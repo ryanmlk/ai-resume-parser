@@ -1,10 +1,9 @@
 from sqlalchemy.orm import Session
-from app.database import SessionLocal, engine
-from app import models
-from app.utils import hash_password
+from database_and_schema.database import SessionLocal, engine
+from database_and_schema import models
+from utils import hash_password
 from faker import Faker
 import random
-from datetime import datetime, timedelta
 
 # Reset DB (optional)
 models.Base.metadata.drop_all(bind=engine)

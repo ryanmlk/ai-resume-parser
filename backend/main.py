@@ -1,12 +1,19 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
-from .database import SessionLocal, engine
-from . import models, schemas, crud
+from database_and_schema.database import SessionLocal, engine
+from database_and_schema import models, schemas, crud
 from fastapi.security import OAuth2PasswordRequestForm
-from app.auth import create_access_token, get_current_user, require_role
-from app.utils import verify_password
+from database_and_schema.auth import create_access_token, get_current_user, require_role
+from database_and_schema.utils import verify_password
+from resume_ocr import resume_parser
+import tempfile
+import shutil
+import os
+import logging
 
-models.Base.metadata.create_all(bind=engine)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="AI Hiring System API",
@@ -110,3 +117,25 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
     access_token = create_access_token(data={"sub": str(user.user_id)})
     return {"access_token": access_token, "token_type": "bearer"}
+
+# ----------------------
+# PARSE RESUME
+# ----------------------
+@app.post("/parse", tags=["Resumes"], summary="Parse resume", description="Upload a resume file for parsing")
+async def parse_resume(
+    file: UploadFile = File(...),
+):
+    logging.info(f"Called parse: {file.filename}")
+    suffix = "." + file.filename.split(".")[-1]
+
+    # Create temp file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
+        shutil.copyfileobj(file.file, temp_file)
+        temp_path = temp_file.name
+
+    try:
+        result = resume_parser.parse_resume(temp_path)
+        return {"status": "success", "filename": file.filename, "result": result}
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)

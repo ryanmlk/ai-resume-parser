@@ -3,7 +3,7 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from . import database, models
+from database_and_schema import database, models
 
 # Secret key & algorithm for JWT
 SECRET_KEY = "supersecretkey"

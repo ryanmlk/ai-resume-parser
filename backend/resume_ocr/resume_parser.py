@@ -234,17 +234,15 @@ def call_gemini_flash(prompt, api_key):
             logging.error(f"API Error Message: {e.message}")
         return None
 
-
-# --- Main Execution ---
-
-def main():
+def parse_resume(resume_path):
+    print("Parsing resume...", resume_path)
     parser = argparse.ArgumentParser(
         description="Extract information from PDF or DOCX resumes into JSON using Gemini Flash.")
     parser.add_argument("resume_path", help="Path to the resume file (PDF or DOCX).")
     parser.add_argument("-o", "--output", help="Optional path to save the output JSON file.", default=None)
     parser.add_argument("-d", "--debug", help="Enable debug logging.", action="store_true")
     
-    resume_path = '../../data/raw/sample-resume.pdf'
+    # resume_path = 'data/raw/sample-resume.pdf'
     # output = '../../processed/resume-parsed.json'
     # 1. Load API Key
     api_key = load_api_key()
@@ -270,8 +268,7 @@ def main():
     # 5. Output Results
     if extracted_data:
         logging.info("Successfully extracted resume data.")
-        # Pretty print JSON to console
-        print(json.dumps(extracted_data, indent=2))
+        return extracted_data
 
         # Save to file if specified
         # if output:
@@ -284,7 +281,3 @@ def main():
     else:
         logging.error("Failed to extract resume data.")
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
