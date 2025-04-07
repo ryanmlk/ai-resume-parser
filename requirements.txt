@@ -1,0 +1,6 @@
+protobuf~=5.29.4
+pypdf2~=3.0.1
+python-docx~=1.1.2
+python-dotenv~=1.1.0
+requests~=2.32.3
+pydantic~=2.11.2
