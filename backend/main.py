@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from database_and_schema.database import SessionLocal, engine
 from database_and_schema import models, schemas, crud
@@ -20,6 +21,14 @@ app = FastAPI(
     description="Backend for resume matching, job posting, job applications, and AI scoring.",
     version="1.0.0",
     debug=True
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # or ["*"] for all origins (dev only)
+    allow_credentials=True,
+    allow_methods=["*"],  # or restrict to ["POST", "GET"] etc.
+    allow_headers=["*"],
 )
 
 # Dependency

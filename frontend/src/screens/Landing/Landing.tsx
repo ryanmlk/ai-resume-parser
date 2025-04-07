@@ -65,9 +65,11 @@ export const Landing = (): JSX.Element => {
 
         {/* Navigation bar */}
         <Card className="absolute w-[1312px] h-[87px] top-[45px] left-1/2 -translate-x-1/2 rounded-[40px] flex items-center justify-between px-20 bg-white/80 backdrop-blur-sm z-30">
-          <h2 className="font-semibold text-[#175ade] text-[32px] tracking-[0] leading-8">
-            ResumeBoost
-          </h2>
+            <img 
+            src="/logo.png" 
+            alt="ResumeBoost Logo" 
+            className="h-[55px]" 
+            />
 
           <Button 
             className="w-[186px] h-[63px] bg-[#1865ff] rounded-[28px] text-base"
