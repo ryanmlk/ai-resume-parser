@@ -38,6 +38,9 @@ jobs:
           npm run build
           cd ..
 
+      - name: Copy requirements.txt to root
+        run: cp backend/requirements.txt .
+
       - name: Zip artifact for deployment
         run: zip -r release.zip backend frontend startup.sh
 
