@@ -1,8 +1,10 @@
 import json
 from pymongo import MongoClient
+import os
 
 def extract_objects(file_path: str):
-    client = MongoClient("mongodb://localhost:27017/")
+    mongo_client = os.getenv("MONGO_CLIENT")
+    client = MongoClient(mongo_client)
     db = client["jobs_data"]
     collection = db["jobs"]
     # Test the connection
