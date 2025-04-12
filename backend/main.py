@@ -1,3 +1,10 @@
+import sys
+import os
+
+# Add the backend directory to PYTHONPATH manually
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+print("PYTHONPATH:", sys.path)
+
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -32,7 +39,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")
+app.mount("/", StaticFiles(directory="./frontend/dist", html=True), name="static")
 
 # Dependency
 def get_db():
