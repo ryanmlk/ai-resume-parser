@@ -13,3 +13,4 @@ passlib
 python-jose[cryptography]
 python-multipart
 uvicorn
+aiofiles

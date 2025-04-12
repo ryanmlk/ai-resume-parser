@@ -11,6 +11,7 @@ import tempfile
 import shutil
 import os
 import logging
+from fastapi.staticfiles import StaticFiles
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -25,11 +26,13 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # or ["*"] for all origins (dev only)
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # or restrict to ["POST", "GET"] etc.
+    allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")
 
 # Dependency
 def get_db():
@@ -38,6 +41,13 @@ def get_db():
         yield db
     finally:
         db.close()
+
+# ----------------------
+# Health Check
+# ----------------------      
+@app.get("/api/health")
+def health_check():
+    return {"status": "ok"}
 
 # ----------------------
 # USERS
