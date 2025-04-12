@@ -1,7 +1,9 @@
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+print("📁 Current working directory:", os.getcwd())
+print("📂 sys.path:", sys.path)
 
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
