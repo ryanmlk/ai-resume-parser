@@ -11,4 +11,9 @@ export default defineConfig({
       plugins: [tailwind()],
     },
   },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:8000'
+    }
+  }
 });
