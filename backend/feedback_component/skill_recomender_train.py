@@ -103,11 +103,11 @@ flat_skills = [skill for sublist in df["filtered_skills"] for skill in sublist]
 skill_counts = Counter(flat_skills)
 
 # Get top N skills (optional)
-top_skills = [s for s, count in skill_counts.items()]
+all_skills = [s for s, count in skill_counts.items()]
 
 print("Generating embeddings for skills...")
 model = SentenceTransformer("all-MiniLM-L6-v2")
-skill_embeddings = model.encode(top_skills)
+skill_embeddings = model.encode(all_skills)
 
 print("Clustering skills...")
 dbscan = DBSCAN(eps=0.3, min_samples=2, metric="cosine")
@@ -115,7 +115,7 @@ labels = dbscan.fit_predict(skill_embeddings)
 
 # Create mapping
 print("Creating mappping...")
-skill_cluster_df = pd.DataFrame({"skill": top_skills, "cluster": labels})
+skill_cluster_df = pd.DataFrame({"skill": all_skills, "cluster": labels})
 
 canonical_map = {}
 grouped = skill_cluster_df.groupby("cluster")["skill"]

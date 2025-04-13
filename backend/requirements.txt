@@ -14,3 +14,12 @@ python-jose[cryptography]
 python-multipart
 uvicorn
 aiofiles
+sentence-transformers~=4.0.2
+ipykernel~=6.29.5
+notebook~=7.4.0
+pandas
+numpy
+pymongo
+scikit-learn
+torch
+spacy

@@ -2,8 +2,9 @@ import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-print("📁 Current working directory:", os.getcwd())
-print("📂 sys.path:", sys.path)
+# For debugging purposes
+# print("📁 Current working directory:", os.getcwd())
+# print("📂 sys.path:", sys.path)
 
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,11 +15,13 @@ from fastapi.security import OAuth2PasswordRequestForm
 from database_and_schema.auth import create_access_token, get_current_user, require_role
 from database_and_schema.utils import verify_password
 from resume_ocr import resume_parser
+from feedback_component import evaluator
 import tempfile
 import shutil
 import os
 import logging
 from fastapi.staticfiles import StaticFiles
+from fastapi.concurrency import run_in_threadpool
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -157,12 +160,13 @@ async def parse_resume(
         temp_path = temp_file.name
 
     try:
-        result = resume_parser.parse_resume(temp_path)
-        return {"status": "success", "filename": file.filename, "result": result}
+        parsed_resume = await run_in_threadpool(resume_parser.parse_resume, temp_path)
+        feedback = evaluator.evaluate_resume(parsed_resume)
+        return {"status": "success", "filename": file.filename, "result": {"parsed_resume": parsed_resume, "feedback": feedback}}
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
             
             
 # Always keep this at the end of the file       
-app.mount("/", StaticFiles(directory="./frontend/dist", html=True), name="static")
+app.mount("/", StaticFiles(directory="../frontend/dist", html=True), name="static")

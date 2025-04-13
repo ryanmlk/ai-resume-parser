@@ -241,9 +241,6 @@ def parse_resume(resume_path):
     parser.add_argument("resume_path", help="Path to the resume file (PDF or DOCX).")
     parser.add_argument("-o", "--output", help="Optional path to save the output JSON file.", default=None)
     parser.add_argument("-d", "--debug", help="Enable debug logging.", action="store_true")
-    
-    # resume_path = 'data/raw/sample-resume.pdf'
-    # output = '../../processed/resume-parsed.json'
     # 1. Load API Key
     api_key = load_api_key()
 
@@ -255,8 +252,6 @@ def parse_resume(resume_path):
 
     if len(resume_text.strip()) < 50:  # Basic check for meaningful content
         logging.warning("Warning: Extracted text seems very short. Parsing might be inaccurate.")
-        # Decide if you want to exit or proceed
-        # sys.exit("Extracted text too short.")
 
     # 3. Build Prompt
     prompt = build_gemini_prompt(resume_text, JSON_SCHEMA_DEFINITION)
@@ -269,15 +264,5 @@ def parse_resume(resume_path):
     if extracted_data:
         logging.info("Successfully extracted resume data.")
         return extracted_data
-
-        # Save to file if specified
-        # if output:
-        #     try:
-        #         with open(output, 'w', encoding='utf-8') as f_out:
-        #             json.dump(extracted_data, f_out, indent=2, ensure_ascii=False)
-        #         logging.info(f"Successfully saved JSON output to: {output}")
-        #     except IOError as e:
-        #         logging.error(f"Error saving output file {output}: {e}")
     else:
         logging.error("Failed to extract resume data.")
-        sys.exit(1)

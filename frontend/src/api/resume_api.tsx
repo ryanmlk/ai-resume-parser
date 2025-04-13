@@ -11,7 +11,7 @@ export async function parseResume(file: File): Promise<any> {
       throw new Error("Failed to upload resume");
     }
   
-    const text = await response.json();
-    return text;
+    const result = await response.json();
+    return result;
   }
   
