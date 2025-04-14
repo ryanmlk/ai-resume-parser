@@ -1,6 +1,7 @@
 import re
 from sentence_transformers import SentenceTransformer, util
 # from skill_recommender_test import recommend_skills  # This should return a list of relevant skills
+from feedback_component import skill_model
 
 # Load model once
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -16,16 +17,7 @@ buzzwords = [
 ]
 
 
-def evaluate_summary_temp(summary_text: str, target_skills=None, job_title=None):
-    if not summary_text:
-        return {"score": 0, "feedback": ["Summary is missing. Add a short professional overview."]}
-    return {
-        "score": 1,
-        "feedback": ["Your summary is clear. Consider including your most relevant skills."]
-    }
-
-
-def evaluate_summary(summary: str, job_title: str, target_skills: list):
+def evaluate_summary(summary: str, job_title: str = None, target_skills: list = None):
     feedback = []
     score = 0
     max_points = 4
@@ -123,15 +115,53 @@ def evaluate_personal_info(data: dict):
         "feedback": feedback
     }
 
-def evaluate_work_experience(work: list):
+def evaluate_work_experience(work: list, target_skills: list = None):
     if not work:
-        return {"score": 0, "feedback": ["No work experience provided."]}
+        return {"score": 0.0, "feedback": ["No work experience found."]}
 
+    total_score = 0
     feedback = []
-    for exp in work:
-        if not exp.get("description"):
-            feedback.append(f"Missing description for {exp.get('job_title')}.")
-    return {"score": 1 if not feedback else 0.5, "feedback": feedback}
+
+    for i, entry in enumerate(work):
+        entry_score = 0
+        issues = []
+
+        # Check for title, company, and location
+        if all(entry.get(k) for k in ["job_title", "company", "location"]):
+            entry_score += 1
+        else:
+            issues.append("missing job title, company, or location")
+
+        # Check description
+        desc = (entry.get("description") or "").strip()
+        if len(desc.split()) >= 10:
+            entry_score += 1
+        else:
+            issues.append("description is too short or missing")
+
+        # Check for skill mentions
+        if target_skills:
+            matches = [skill for skill in target_skills if skill.lower() in entry.get("description", "").lower()]
+            if not matches:
+                issues.append(f"Consider mentioning at least one technical skill (e.g., {', '.join(target_skills[:3])})")
+                entry_score += 0.3
+            elif len(matches) < 2:
+                issues.append(f"Good! But consider adding more skills like {', '.join(target_skills[3:6])}.")
+                entry_score += 0.5
+            else:
+                entry_score += 1
+
+        max_entry_score = 4 if target_skills else 3
+        total_score += entry_score / max_entry_score
+
+        if issues:
+            feedback.append(f"Entry {i+1}: " + "; ".join(issues))
+
+    normalized_score = total_score / len(work)
+    return {
+        "score": round(normalized_score, 2),
+        "feedback": feedback
+    }
 
 def evaluate_education(edu: list):
     if not edu:
@@ -146,9 +176,10 @@ def evaluate_skills(skills: list):
     return {"score": 1, "feedback": ["Skills section is well populated."]}
 
 def evaluate_resume(parsed_resume: dict):
+    target_skills = skill_model.recommend_skills_from_summary(parsed_resume.get("job_title", ""), parsed_resume.get("summary", ""), top_k=5)
     personal = evaluate_personal_info(parsed_resume.get("personal_information", {}))
-    summary = evaluate_summary_temp(parsed_resume.get("summary", ""))
-    experience = evaluate_work_experience(parsed_resume.get("work_experience", []))
+    summary = evaluate_summary(parsed_resume.get("summary", ""), "", target_skills)
+    experience = evaluate_work_experience(parsed_resume.get("work_experience", []), target_skills)
     education = evaluate_education(parsed_resume.get("education", []))
     skills = evaluate_skills(parsed_resume.get("skills", []))
 

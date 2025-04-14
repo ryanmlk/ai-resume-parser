@@ -1,0 +1,5 @@
+backend/database_and_schema/__pycache__
+backend/feedback_component/__pycache__
+backend/resume_ocr/__pycache__
+backend/__pycache__/*.pyc
+.idea

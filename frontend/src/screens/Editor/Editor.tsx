@@ -249,6 +249,7 @@ export const Editor = (): JSX.Element => {
                     {weExpanded && (
                       <div className="ml-7 mt-1 text-sm text-gray-600 border-l-2 border-gray-200 pl-2">
                         {parsedResume?.work_experience?.map((job, index) => (
+                          <>
                           <div
                             key={index}
                             className="mb-3 pb-3 border-b border-gray-100"
@@ -270,11 +271,22 @@ export const Editor = (): JSX.Element => {
                               <p className="mt-1">{job.description}</p>
                             )}
                           </div>
+                          {feedbackSections?.work_experience && (
+                          <div className="mt-3 bg-gray-100 p-3 rounded-md">
+                            <p className="font-medium text-black-700">
+                              Feedback:
+                            </p>
+                            <p className="text-black-600">
+                              {feedbackSections.work_experience.feedback[index]}
+                            </p>
+                          </div>
+                        )}
+                        </>
                         ))}
                         {parsedResume?.work_experience?.length === 0 && (
                           <p>No work experience found</p>
                         )}
-                        {feedbackSections?.work_experience && (
+                        {/* {feedbackSections?.work_experience && (
                           <div className="mt-3 bg-gray-100 p-3 rounded-md">
                             <p className="font-medium text-black-700">
                               Feedback:
@@ -283,7 +295,7 @@ export const Editor = (): JSX.Element => {
                               {feedbackSections.work_experience.feedback}
                             </p>
                           </div>
-                        )}
+                        )} */}
                       </div>
                     )}
                   </div>
