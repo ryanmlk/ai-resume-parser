@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.0",
+    "@tiptap/pm": "^2.11.7",
+    "@tiptap/react": "^2.11.7",
+    "@tiptap/starter-kit": "^2.11.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "2.1.1",
     "docx": "^9.3.0",

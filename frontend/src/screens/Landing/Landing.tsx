@@ -1,20 +1,26 @@
-import React, { useRef } from "react";
+import React, { useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
+import { AuthContext } from "../../auth/AuthContext";
 
 export const Landing = (): JSX.Element => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const authContext = useContext(AuthContext);
 
   const handleUploadClick = () => {
-    fileInputRef.current?.click();
+    if (authContext?.isAuthenticated) {
+      fileInputRef.current?.click();
+    } else {
+      navigate("/login"); // Redirect to login if not authenticated
+    }
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      navigate('/editor', { state: { file } });
+      navigate("/editor", { state: { file } });
     }
   };
 
@@ -55,7 +61,7 @@ export const Landing = (): JSX.Element => {
             real job postings—fast, simple, and effective.
           </p>
 
-          <Button 
+          <Button
             className="mt-[36px] w-[186px] h-[63px] bg-[#1865ff] rounded-[28px] text-base"
             onClick={handleUploadClick}
           >
@@ -65,18 +71,28 @@ export const Landing = (): JSX.Element => {
 
         {/* Navigation bar */}
         <Card className="absolute w-[1312px] h-[87px] top-[45px] left-1/2 -translate-x-1/2 rounded-[40px] flex items-center justify-between px-20 bg-white/80 backdrop-blur-sm z-30">
-            <img 
-            src="/logo.png" 
-            alt="ResumeBoost Logo" 
-            className="h-[55px]" 
-            />
-
-          <Button 
-            className="w-[186px] h-[63px] bg-[#1865ff] rounded-[28px] text-base"
-            onClick={handleUploadClick}
-          >
-            Upload Resume
-          </Button>
+          <img
+            src="/logo.png"
+            alt="ResumeBoost Logo"
+            className="h-[55px]"
+          />
+          <div>
+            <Button
+              className="w-[186px] h-[63px] bg-[#1865ff] rounded-[28px] text-base"
+              onClick={handleUploadClick}
+            >
+              Upload Resume
+            </Button>
+            <Button
+              className="w-[186px] h-[63px] bg-red-500 rounded-[28px] text-base ml-4"
+              onClick={() => {
+          authContext?.logout(); // Clear session
+          navigate("/login"); // Redirect to login
+              }}
+            >
+              Sign Out
+            </Button>
+          </div>
         </Card>
       </div>
     </div>

@@ -1,7 +1,9 @@
 import json
+from dotenv import load_dotenv
 from pymongo import MongoClient
 import os
 
+load_dotenv()
 def extract_objects(file_path: str):
     mongo_client = os.getenv("MONGO_CLIENT")
     client = MongoClient(mongo_client)
