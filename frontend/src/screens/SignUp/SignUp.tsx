@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
 import { AuthContext } from "../../auth/AuthContext";
+import { login, register } from "../../api/api_calls";
 
 export const SignUp = (): JSX.Element => {
   const [formData, setFormData] = useState({
@@ -16,7 +17,9 @@ export const SignUp = (): JSX.Element => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
@@ -25,44 +28,25 @@ export const SignUp = (): JSX.Element => {
     setError(null); // Clear previous errors
     try {
       // Sign up the user
-      const signUpResponse = await fetch("http://localhost:8080/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!signUpResponse.ok) {
-        throw new Error("Failed to sign up");
-      }
+      register(formData)
+        .then((signUpResponse) => {
+          if (!signUpResponse.ok) {
+            throw new Error("Failed to sign up");
+          }
+          login(formData.email, formData.password)
+            .then((data) => {
+              authContext?.login(data.access_token);
+              navigate("/");
+            })
+            .catch((error) => {
+              console.error("Error logging in:", error);
+            });
+        })
+        .catch((error) => {
+          console.error("Error signing up:", error);
+        });
 
       console.log("Sign up successful");
-
-      // Automatically log the user in
-      const loginResponse = await fetch("http://localhost:8080/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          username: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      if (!loginResponse.ok) {
-        throw new Error("Failed to log in after sign up");
-      }
-
-      const loginData = await loginResponse.json();
-      console.log("Login successful:", loginData);
-
-      // Use AuthContext to handle login
-      authContext?.login(loginData.access_token);
-
-      // Redirect to the landing page
-      navigate("/");
     } catch (error: any) {
       setError(error.message);
       console.error("Error during sign up or login:", error);
@@ -131,11 +115,7 @@ export const SignUp = (): JSX.Element => {
 
         {/* Navigation bar */}
         <Card className="absolute w-[1312px] h-[87px] top-[45px] left-1/2 -translate-x-1/2 rounded-[40px] flex items-center justify-between px-20 bg-white/80 backdrop-blur-sm z-30">
-          <img
-            src="/logo.png"
-            alt="ResumeBoost Logo"
-            className="h-[55px]"
-          />
+          <img src="/logo.png" alt="ResumeBoost Logo" className="h-[55px]" />
 
           <Button
             className="w-[186px] h-[63px] bg-[#1865ff] rounded-[28px] text-base"

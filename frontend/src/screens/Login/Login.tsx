@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { AuthContext } from "../../auth/AuthContext";
+import { login } from "../../api/api_calls";
 
 export const Login = (): JSX.Element => {
   const [formData, setFormData] = useState({
@@ -21,29 +22,14 @@ export const Login = (): JSX.Element => {
   const handleLogin = async () => {
     setError(null); // Clear previous errors
     try {
-      const response = await fetch("http://localhost:8080/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          username: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Invalid email or password");
-      }
-
-      const data = await response.json();
-      console.log("Login successful:", data);
-
-      // Use AuthContext to handle login
-      authContext?.login(data.access_token);
-
-      // Redirect to the landing page
-      navigate("/");
+      login(formData.email, formData.password)
+        .then((data) => {
+          authContext?.login(data.access_token);
+          navigate("/");
+        })
+        .catch((error) => {
+          console.error("Error logging in:", error);
+        });
     } catch (error: any) {
       setError(error.message);
     }

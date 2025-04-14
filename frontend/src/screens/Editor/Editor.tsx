@@ -3,7 +3,7 @@ import { Button } from "../../components/ui/button";
 import { X, Download } from "lucide-react";
 import WordEditor from "../../components/ui/word_editor";
 import PDFViewer from "../../components/ui/pdf_viewer";
-import { parseResume } from "../../api/resume_api";
+import { parseResume } from "../../api/api_calls";
 import { useEffect, useState } from "react";
 import { ResumeData } from "../../types/resume";
 
