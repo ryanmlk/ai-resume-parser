@@ -1,6 +1,8 @@
 import sys
 import os
 
+from sqlalchemy import text
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 # For debugging purposes
 # print("📁 Current working directory:", os.getcwd())
@@ -9,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from database_and_schema.database import SessionLocal, engine
+from database_and_schema.database import engine, get_db
 from database_and_schema import models, schemas, crud
 from fastapi.security import OAuth2PasswordRequestForm
 from database_and_schema.auth import create_access_token, get_current_user, require_role
@@ -25,7 +27,7 @@ from fastapi.concurrency import run_in_threadpool
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# models.Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="AI Hiring System API",
@@ -41,20 +43,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 # ----------------------
 # Health Check
 # ----------------------      
 @app.get("/api/health", summary="Health Check", description="Check if the API is running")
-def health_check():
-    return {"status": "ok"}
+def health_check(db: Session = Depends(get_db)):
+    try:
+        # Execute a simple query to check DB connection
+        db.execute(text("SELECT 1;"))
+        return {"status": "ok", "database": "connected"}
+    except Exception as e:
+        return {"status": "error", "database": "disconnected", "detail": str(e)}
 
 # ----------------------
 # USERS
