@@ -6,6 +6,8 @@ import PDFViewer from "../../components/ui/pdf_viewer";
 import { parseResume } from "../../api/api_calls";
 import { useEffect, useState } from "react";
 import { ResumeData } from "../../types/resume";
+import TiptapEditor from "../../components/tiptap/Tiptap";
+import html2pdf from 'html2pdf.js';
 
 export const Editor = (): JSX.Element => {
   const location = useLocation();
@@ -21,25 +23,155 @@ export const Editor = (): JSX.Element => {
   const [eduExpanded, setEduExpanded] = useState<Boolean>(false);
   const [skillsExpanded, setSkillsExpanded] = useState<Boolean>(false);
   const [parseLoading, setParseLoading] = useState<Boolean>(false);
+  const [resumeHTML, setResumeHTML] = useState("");
 
   useEffect(() => {
     if (!parsedResume && !feedbackSections && !resumeScore) {
       setParseLoading(true);
-      parseResume(file)
-        .then((data) => {
-          setParsedResume(data.result.parsed_resume);
-          setFeedback(data.result.feedback.sections);
-          setResumeScore(data.result.feedback.score);
-          setParseLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error parsing resume:", error);
-        });
+      setParsedResume({
+        personal_information: {
+          name: "Ryan Moses",
+          email: "ryanmoses99@gmail.com",
+          phone: "613-293-1197",
+          location: "Ottawa, ON K2C3N1",
+          linkedin_url: null,
+          portfolio_url: null,
+          github_url: null,
+          other_links: [],
+        },
+        summary:
+          "I am an international student pursuing a postgraduate certificate in Artificial Intelligence and Machine Learning at Lambton College Ottawa. With over 4 years of experience in software development roles and a passion for solving real-world problems, I am eager to contribute to applied research. My detail-oriented nature, adaptability, and collaborative experience prepare me to excel as a Student Researcher. I am excited to apply my technical skills and dedication to support Lambton College Research.",
+        work_experience: [
+          {
+            job_title: "Software Engineer",
+            company: "Rooverr Technologies",
+            location: "Colombo, Sri Lanka",
+            start_date: "Jan 2023",
+            end_date: "Aug 2024",
+            description:
+              "Developed a web application using Next.js for the frontend and Nest.js for the backend.\nContributed significantly to both frontend and backend development, including making UI improvements using Figma and adding new pages.\nDeployed the web application on AWS and configured a CI/CD pipeline.\nUtilized various AWS services, such as SQS, SNS, Api Gateway, ECS, EC2, DynamoDB, Amplify, and Lambdas to enhance the application's functionality.\nAssumed a leadership role in launching a mobile app, selecting the Flutter framework for the architecture, and setting up the initial project structure for the team.\nIntroduced Agile methodologies to the team, establishing a structured sprint framework with daily meetings and bi-weekly sprint reviews, significantly improving project organization and efficiency.",
+          },
+          {
+            job_title: "Trainee Software Developer",
+            company: "IFS R&D International (Pvt) Ltd",
+            location: "Colombo, Sri Lanka",
+            start_date: "Jan 2020",
+            end_date: "Dec 2022",
+            description:
+              "Enhanced existing software, addressing errors, adapting to new hardware, and upgrading interfaces to boost performance.\nEnsured product quality through feedback analysis, integration management, and continuous testing.\nCollaborated with senior engineers to implement Agile development methodologies for prototype tasks.\nGained insights through design and code reviews, enhancing knowledge of development processes.\nExpanded programming language skills to write high-quality object-oriented code.\nImplemented CI/CD pipelines to elevate product quality, including automated integrated tests.",
+          },
+        ],
+        education: [
+          {
+            institution: "Lambton College",
+            degree: "Artificial Intelligence and Machine Learning",
+            major: null,
+            location: "Ottawa",
+            start_date: "Sep 2024",
+            end_date: "Present",
+            details: null,
+          },
+          {
+            institution: "Sri Lanka Institute of Information Technology",
+            degree: "B.Sc. (Hons) in Information Technology",
+            major: null,
+            location: null,
+            start_date: "Jan 2019",
+            end_date: "Dec 2022",
+            details: "GPA 3.66",
+          },
+        ],
+        skills: [
+          "JavaScript",
+          "TypeScript",
+          "Python",
+          "SQL",
+          "Next.js",
+          "Nest.js",
+          "Flutter",
+          "AWS (SQS, SNS, Lambda, API Gateway, EC2, DynamoDB)",
+          "CI/CD pipelines",
+          "MySQL",
+          "DynamoDB",
+          "Git",
+          "Docker",
+          "JIRA",
+          "Jenkin",
+          "Attention to Detail",
+          "Adaptable",
+          "Good Communication",
+        ],
+        projects: [],
+        certifications: [],
+        languages: [],
+        awards_and_honors: [
+          "Consistent High Performance : Maintained a high academic standard with a GPA above 3.6",
+          "Achievement-Oriented : Earned scholarships multiple times by ranking in the top 3% of my undergraduate class",
+          "Reliability and Initiative : Awarded a full scholarship and the opportunity to work as a Trainee Software Developer based on exceptional academic performance",
+          "Quality Assurance and Attention to Detail : Worked as the QA counterpart in my team at IFS, collaborating closely to ensure high-quality outcomes, highlighting my attention to detail, responsibility, and ability to work effectively within a team.",
+        ],
+      });
+      setFeedback({
+        personal_information: {
+          score: 0.6,
+          feedback: [
+            "Consider adding a LinkedIn profile to boost credibility.",
+            "Consider adding a portfolio or GitHub link.",
+          ],
+        },
+        summary: {
+          score: 0.5,
+          feedback: [
+            "Avoid vague buzzwords like 'detail-oriented', 'collaborative'. Focus on measurable skills or impact instead.",
+            "Good! But consider adding more skills like time, customer.",
+          ],
+        },
+        work_experience: {
+          score: 0.6,
+          feedback: [
+            "Entry 1: Consider mentioning at least one technical skill (e.g., management, microsoft, problem)",
+            "Entry 2: Good! But consider adding more skills like time, customer.",
+          ],
+        },
+        education: {
+          score: 1,
+          feedback: ["Education section looks good."],
+        },
+        skills: {
+          score: 1,
+          feedback: ["Skills section is well populated."],
+        },
+      });
+      setParseLoading(false);
+      // parseResume(file)
+      //   .then((data) => {
+      //     setParsedResume(data.result.parsed_resume);
+      //     setFeedback(data.result.feedback.sections);
+      //     setResumeScore(data.result.feedback.score);
+      //     setParseLoading(false);
+      //   })
+      //   .catch((error) => {
+      //     console.error("Error parsing resume:", error);
+      //   });
     }
+    // console.log("Parsed Resume:", parsedResume);
+    // console.log("Feedback Sections:", feedbackSections);
   }, []);
 
   const handleCancel = () => {
     navigate("/");
+  };
+
+  const handleExportPDF = () => {
+    const element = document.querySelector('.tiptap');
+    if (element) {
+      html2pdf().from(element).set({
+        margin: 0.5,
+        filename: 'resume.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+      }).save();
+    }
   };
 
   const handleDownload = () => {
@@ -83,7 +215,7 @@ export const Editor = (): JSX.Element => {
             <X className="w-4 h-4" />
             Cancel
           </Button>
-          <Button className="flex items-center gap-2" onClick={handleDownload}>
+          <Button className="flex items-center gap-2" onClick={handleExportPDF}>
             <Download className="w-4 h-4" />
             Download
           </Button>
@@ -94,10 +226,13 @@ export const Editor = (): JSX.Element => {
       <div className="flex h-[calc(100vh-4rem)]">
         {/* PDF Viewer */}
         <div className="w-[60%] bg-gray-50 overflow-auto p-8">
-          {file.type === "application/pdf" ? (
+          {/* {file.type === "app lication/pdf" ? (
             <PDFViewer file={file} />
           ) : (
             <WordEditor file={file} />
+          )} */}
+          {parsedResume && (
+            <TiptapEditor onChange={setResumeHTML} resumeData={parsedResume} />
           )}
         </div>
 
@@ -135,58 +270,13 @@ export const Editor = (): JSX.Element => {
                     </div>
                     {piExpanded && (
                       <div className="ml-7 mt-1 text-sm text-gray-600 border-l-2 border-gray-200 pl-2">
-                        {parsedResume?.personal_information.name && (
-                          <p>Name: {parsedResume.personal_information.name}</p>
-                        )}
-                        {parsedResume?.personal_information.email && (
-                          <p>
-                            Email: {parsedResume.personal_information.email}
-                          </p>
-                        )}
-                        {parsedResume?.personal_information.phone && (
-                          <p>
-                            Phone: {parsedResume.personal_information.phone}
-                          </p>
-                        )}
-                        {parsedResume?.personal_information.location && (
-                          <p>
-                            Location:{" "}
-                            {parsedResume.personal_information.location}
-                          </p>
-                        )}
-                        {parsedResume?.personal_information.linkedin_url && (
-                          <p>
-                            Linkedin:{" "}
-                            {parsedResume.personal_information.linkedin_url}
-                          </p>
-                        )}
-                        {parsedResume?.personal_information.portfolio_url && (
-                          <p>
-                            Portfolio:{" "}
-                            {parsedResume.personal_information.portfolio_url}
-                          </p>
-                        )}
-                        {parsedResume?.personal_information.github_url && (
-                          <p>
-                            Github:{" "}
-                            {parsedResume.personal_information.github_url}
-                          </p>
-                        )}
-                        {parsedResume?.personal_information.other_links && (
-                          <p>
-                            Other:{" "}
-                            {parsedResume.personal_information.other_links}
-                          </p>
-                        )}
-
                         {feedbackSections?.personal_information && (
                           <div className="mt-3 bg-gray-100 p-3 rounded-md">
-                            <p className="font-medium text-black-700">
-                              Feedback:
-                            </p>
-                            <p className="text-black-600">
-                              {feedbackSections.personal_information.feedback}
-                            </p>
+                            {feedbackSections.personal_information.feedback?.map(
+                              (feedback: string) => (
+                                <p className="text-black-600">{feedback}</p>
+                              )
+                            )}
                           </div>
                         )}
                       </div>
@@ -213,15 +303,13 @@ export const Editor = (): JSX.Element => {
                     </div>
                     {summaryExpanded && (
                       <div className="ml-7 mt-1 text-sm text-gray-600 border-l-2 border-gray-200 pl-2">
-                        {parsedResume?.summary && <p>{parsedResume.summary}</p>}
                         {feedbackSections?.summary && (
                           <div className="mt-3 bg-gray-100 p-3 rounded-md">
-                            <p className="font-medium text-black-700">
-                              Feedback:
-                            </p>
-                            <p className="text-black-600">
-                              {feedbackSections.summary.feedback}
-                            </p>
+                            {feedbackSections.summary.feedback?.map(
+                              (feedback: string) => (
+                                <p className="text-black-600">{feedback}</p>
+                              )
+                            )}
                           </div>
                         )}
                       </div>
@@ -248,54 +336,15 @@ export const Editor = (): JSX.Element => {
                     </div>
                     {weExpanded && (
                       <div className="ml-7 mt-1 text-sm text-gray-600 border-l-2 border-gray-200 pl-2">
-                        {parsedResume?.work_experience?.map((job, index) => (
-                          <>
-                          <div
-                            key={index}
-                            className="mb-3 pb-3 border-b border-gray-100"
-                          >
-                            <p className="font-medium">
-                              {job.job_title} - {job.company}
-                            </p>
-                            {job.start_date && job.end_date && (
-                              <p className="text-xs text-gray-500">
-                                {job.start_date} - {job.end_date}
-                              </p>
-                            )}
-                            {job.location && (
-                              <p className="text-xs text-gray-500 mt-1">
-                                {job.location}
-                              </p>
-                            )}
-                            {job.description && (
-                              <p className="mt-1">{job.description}</p>
-                            )}
-                          </div>
-                          {feedbackSections?.work_experience && (
+                        {feedbackSections?.work_experience && (
                           <div className="mt-3 bg-gray-100 p-3 rounded-md">
-                            <p className="font-medium text-black-700">
-                              Feedback:
-                            </p>
-                            <p className="text-black-600">
-                              {feedbackSections.work_experience.feedback[index]}
-                            </p>
+                            {feedbackSections.work_experience.feedback?.map(
+                              (feedback: string) => (
+                                <p className="text-black-600">{feedback}</p>
+                              )
+                            )}
                           </div>
                         )}
-                        </>
-                        ))}
-                        {parsedResume?.work_experience?.length === 0 && (
-                          <p>No work experience found</p>
-                        )}
-                        {/* {feedbackSections?.work_experience && (
-                          <div className="mt-3 bg-gray-100 p-3 rounded-md">
-                            <p className="font-medium text-black-700">
-                              Feedback:
-                            </p>
-                            <p className="text-black-600">
-                              {feedbackSections.work_experience.feedback}
-                            </p>
-                          </div>
-                        )} */}
                       </div>
                     )}
                   </div>
@@ -320,45 +369,13 @@ export const Editor = (): JSX.Element => {
                     </div>
                     {eduExpanded && (
                       <div className="ml-7 mt-1 text-sm text-gray-600 border-l-2 border-gray-200 pl-2">
-                        {parsedResume?.education?.map((edu, index) => (
-                          <div
-                            key={index}
-                            className="mb-3 pb-3 border-b border-gray-100"
-                          >
-                            <p className="font-medium">
-                              {edu.degree} - {edu.institution}
-                            </p>
-                            {edu.start_date && edu.end_date && (
-                              <p className="text-xs text-gray-500">
-                                {edu.start_date} - {edu.end_date}
-                              </p>
-                            )}
-                            {edu.major && (
-                              <p className="text-xs text-gray-500">
-                                Major: {edu.major}
-                              </p>
-                            )}
-                            {edu.location && (
-                              <p className="text-xs text-gray-500 mt-1">
-                                {edu.location}
-                              </p>
-                            )}
-                            {edu.details && (
-                              <p className="mt-1">{edu.details}</p>
-                            )}
-                          </div>
-                        ))}
-                        {parsedResume?.education?.length === 0 && (
-                          <p>No education details found</p>
-                        )}
                         {feedbackSections?.education && (
                           <div className="mt-3 bg-gray-100 p-3 rounded-md">
-                            <p className="font-medium text-black-700">
-                              Feedback:
-                            </p>
-                            <p className="text-black-600">
-                              {feedbackSections.education.feedback}
-                            </p>
+                            {feedbackSections.education.feedback?.map(
+                              (feedback: string) => (
+                                <p className="text-black-600">{feedback}</p>
+                              )
+                            )}
                           </div>
                         )}
                       </div>
@@ -385,20 +402,13 @@ export const Editor = (): JSX.Element => {
                     </div>
                     {skillsExpanded && (
                       <div className="ml-7 mt-1 text-sm text-gray-600 border-l-2 border-gray-200 pl-2">
-                        {parsedResume?.skills?.map((skill) => (
-                          <p className="font-medium">{skill}</p>
-                        ))}
-                        {parsedResume?.skills?.length === 0 && (
-                          <p>No skills found</p>
-                        )}
                         {feedbackSections?.skills && (
                           <div className="mt-3 bg-gray-100 p-3 rounded-md">
-                            <p className="font-medium text-black-700">
-                              Feedback:
-                            </p>
-                            <p className="text-black-600">
-                              {feedbackSections.skills.feedback}
-                            </p>
+                            {feedbackSections.skills.feedback?.map(
+                              (feedback: string) => (
+                                <p className="text-black-600">{feedback}</p>
+                              )
+                            )}
                           </div>
                         )}
                       </div>
@@ -415,7 +425,7 @@ export const Editor = (): JSX.Element => {
           {/* Download Button (at bottom) */}
           <Button
             className="w-full flex items-center justify-center gap-2"
-            onClick={handleDownload}
+            onClick={handleExportPDF}
           >
             <Download className="w-4 h-4" />
             Download

@@ -1,10 +1,7 @@
 import joblib
 import numpy as np
 import requests
-from sklearn.model_selection import train_test_split
 import torch
-import torch.optim as optim
-from sklearn.model_selection import train_test_split
 from feedback_component import skill_classifier
 
 API_URL = "http://127.0.0.1:1234/v1/embeddings"
@@ -31,7 +28,7 @@ skill_classifier_model = skill_classifier.SkillClassifier(input_size=EMBEDDING_D
 skill_classifier_model.load_state_dict(torch.load(model_path, map_location=device))
 skill_classifier_model.eval()
 
-def recommend_skills_from_summary(job_title: str, summary: str, top_k: int = 5):
+def recommend_skills_from_summary(job_title: str, summary: str, top_k: int = 6):
     # Combine and embed input
     input_text = f"{job_title}. {summary}"
     embedding = get_embedding(input_text)
@@ -45,9 +42,3 @@ def recommend_skills_from_summary(job_title: str, summary: str, top_k: int = 5):
     # Map indices back to skill labels
     predicted_skills = [mlb.classes_[i] for i in topk_indices]
     return predicted_skills
-
-# job_title = "Data Scientist"
-# summary = "Experienced in analyzing large datasets, building machine learning models, and presenting insights to stakeholders."
-
-# recommended_skills = recommend_skills_from_summary(job_title, summary, top_k=5)
-# print("🔧 Suggested Skills:", recommended_skills)

@@ -155,7 +155,7 @@ def evaluate_work_experience(work: list, target_skills: list = None):
         total_score += entry_score / max_entry_score
 
         if issues:
-            feedback.append(f"Entry {i+1}: " + "; ".join(issues))
+            feedback.append(f"Experience {i+1}: " + "; ".join(issues))
 
     normalized_score = total_score / len(work)
     return {

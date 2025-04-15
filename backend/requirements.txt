@@ -21,6 +21,8 @@ pandas
 numpy
 pymongo
 scikit-learn
-torch
+torch==2.6.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
 spacy
 bcrypt
+matplotlib
