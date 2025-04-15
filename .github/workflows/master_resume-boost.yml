@@ -1,87 +1,42 @@
-name: Build and deploy FastAPI backend + React Frontend to Azure
+name: Build and Deploy Docker to Azure
 
 on:
   push:
     branches:
-      - master
+      - Docker-test
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read #This is required for actions/checkout
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python version
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 23
-      
-      - name: Install backend dependencies
-        run: |
-          cd backend
-          pip install -r requirements.txt
-          cd ..
-
-      - name: Install frontend dependencies and build
-        run: |
-          cd frontend
-          npm install
-          npm run build
-          cd ..
-
-      - name: Copy requirements.txt to root
-        run: cp backend/requirements.txt .
-
-      - name: Zip artifact for deployment
-        run: zip -r release.zip backend frontend startup.sh
-
-      - name: Upload artifact for deployment jobs
-        uses: actions/upload-artifact@v4
-        with:
-          name: resume-boost
-          path: |
-            release.zip
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
-
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: resume-boost
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
-
-      
-      - name: Login to Azure
+      - name: Log in to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_FCE5E72AB2B0424390824983DC9969D5 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3D84210613AC4CA9ABF1A88C51E97C8F }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_22C1853042004D4289B60001E8138EB4 }}
 
-      - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
+      - name: Build and push Docker image
+        uses: azure/docker-login@v1
         with:
-          app-name: 'resume-boost'
-          slot-name: 'Production'
-          
+          login-server: resumeboost.azurecr.io
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
+      - run: |
+          docker build -t resumeboost.azurecr.io/resume-boost:latest .
+          docker push resumeboost.azurecr.io/resume-boost:latest
+
+      - name: Deploy to Azure Web App for Containers
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: resume-boost
+          slot-name: Production
+          images: resumeboost.azurecr.io/resume-boost:latest
