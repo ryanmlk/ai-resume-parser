@@ -25,7 +25,7 @@ model_path = "backend/feedback_component/models/skill_model.pth"
 skill_classifier_model = skill_classifier.SkillClassifier(input_size=EMBEDDING_DIM, output_size=len(mlb.classes_)).to(device)
 
 # Load the saved weights
-skill_classifier_model.load_state_dict(torch.load(model_path, map_location=device))
+skill_classifier_model.load_state_dict(torch.load(model_path, map_location=device, weights_only=False))
 skill_classifier_model.eval()
 
 def recommend_skills_from_summary(job_title: str, summary: str, top_k: int = 6):
