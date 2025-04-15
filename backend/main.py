@@ -3,7 +3,8 @@ import os
 
 from sqlalchemy import text
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(os.path.abspath("backend"))
 # For debugging purposes
 # print("📁 Current working directory:", os.getcwd())
 # print("📂 sys.path:", sys.path)
@@ -11,7 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from database_and_schema.database import engine, get_db
+from backend.database_and_schema.database import engine, get_db
 from database_and_schema import models, schemas, crud
 from fastapi.security import OAuth2PasswordRequestForm
 from database_and_schema.auth import create_access_token, get_current_user, require_role
@@ -168,4 +169,4 @@ async def parse_resume(
             
             
 # Always keep this at the end of the file       
-app.mount("/", StaticFiles(directory="../frontend/dist", html=True), name="static")
+app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")

@@ -1,0 +1,39 @@
+name: Build and Deploy Docker to Azure
+
+on:
+  push:
+    branches:
+      - Docker-test
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_FCE5E72AB2B0424390824983DC9969D5 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3D84210613AC4CA9ABF1A88C51E97C8F }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_22C1853042004D4289B60001E8138EB4 }}
+
+      - name: Build and push Docker image
+        uses: azure/docker-login@v1
+        with:
+          login-server: myregistry.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - run: |
+          docker build -t myregistry.azurecr.io/resume-boost:latest .
+          docker push myregistry.azurecr.io/resume-boost:latest
+
+      - name: Deploy to Azure Web App for Containers
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: resume-boost
+          slot-name: Production
+          images: myregistry.azurecr.io/resume-boost:latest

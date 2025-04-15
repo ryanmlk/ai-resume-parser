@@ -19,9 +19,9 @@ def get_embedding(text):
         print(f"Error embedding '{text}': {e}")
         return np.zeros(EMBEDDING_DIM)
 
-mlb = joblib.load('feedback_component/models/skill_label_binarizer.joblib')
+mlb = joblib.load('backend/feedback_component/models/skill_label_binarizer.joblib')
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model_path = "feedback_component/models/skill_model.pth"
+model_path = "backend/feedback_component/models/skill_model.pth"
 skill_classifier_model = skill_classifier.SkillClassifier(input_size=EMBEDDING_DIM, output_size=len(mlb.classes_)).to(device)
 
 # Load the saved weights
