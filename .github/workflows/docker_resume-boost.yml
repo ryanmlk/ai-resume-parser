@@ -9,6 +9,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,17 +26,17 @@ jobs:
       - name: Build and push Docker image
         uses: azure/docker-login@v1
         with:
-          login-server: myregistry.azurecr.io
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          login-server: resumeboost.azurecr.io
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
 
       - run: |
-          docker build -t myregistry.azurecr.io/resume-boost:latest .
-          docker push myregistry.azurecr.io/resume-boost:latest
+          docker build -t resumeboost.azurecr.io/resume-boost:latest .
+          docker push resumeboost.azurecr.io/resume-boost:latest
 
       - name: Deploy to Azure Web App for Containers
         uses: azure/webapps-deploy@v3
         with:
           app-name: resume-boost
           slot-name: Production
-          images: myregistry.azurecr.io/resume-boost:latest
+          images: resumeboost.azurecr.io/resume-boost:latest
